@@ -17,10 +17,10 @@ import java.nio.charset.StandardCharsets;
 
 public class S3EventHandler implements RequestHandler<S3Event, String> {
 
-    private String accessKeyId = System.getenv("accessKeyId");
-    private String secretAccessKey = System.getenv("secretAccessKey");
-    private String region = System.getenv("region");
-    final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
+    private final String accessKeyId = System.getenv("accessKeyId");
+    private final String secretAccessKey = System.getenv("secretAccessKey");
+    private final String region = System.getenv("region");
+    private final BasicAWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKeyId, secretAccessKey);
     AmazonS3 s3client = AmazonS3ClientBuilder
             .standard()
             .withRegion(Regions.fromName(region))
@@ -36,10 +36,10 @@ public class S3EventHandler implements RequestHandler<S3Event, String> {
         String BucketName = s3Event.getRecords().get(0).getS3().getBucket().getName();
         String FileName = s3Event.getRecords().get(0).getS3().getObject().getKey();
 
-        System.out.println("File - "+ FileName+" uploaded into "+
+        log.info("File - "+ FileName+" uploaded into "+
                 BucketName+" bucket at "+ s3Event.getRecords().get(0).getEventTime());
         try (InputStream is = s3client.getObject(BucketName, FileName).getObjectContent()) {
-            System.out.println("File Contents : "+StreamUtils.copyToString(is, StandardCharsets.UTF_8));
+            log.info("File Contents : "+StreamUtils.copyToString(is, StandardCharsets.UTF_8));
         }catch (IOException e){
             e.printStackTrace();
             return "Error reading contents of the file";
